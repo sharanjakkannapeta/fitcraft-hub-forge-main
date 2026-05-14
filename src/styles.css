@@ -1,0 +1,115 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Bebas Neue", "Impact", sans-serif;
+  --font-sans: "Barlow", "Inter", system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-cream: var(--cream);
+  --color-sage: var(--sage);
+  --color-charcoal: var(--charcoal);
+  --color-ink: var(--ink);
+}
+
+/* Brand: olive ink, charcoal, sage accent, cream surface — from user palette
+   #181C14 ink · #3C3D37 charcoal · #697565 sage · #ECDFCC cream */
+:root {
+  --radius: 0.5rem;
+  --ink: oklch(0.21 0.018 130);          /* #181C14 */
+  --charcoal: oklch(0.34 0.012 120);     /* #3C3D37 */
+  --sage: oklch(0.55 0.035 130);         /* #697565 */
+  --cream: oklch(0.92 0.025 85);         /* #ECDFCC */
+
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --card: oklch(0.97 0.012 85);
+  --card-foreground: var(--ink);
+  --popover: var(--cream);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--cream);
+  --secondary: oklch(0.86 0.022 85);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.88 0.018 85);
+  --muted-foreground: oklch(0.42 0.015 120);
+  --accent: var(--sage);
+  --accent-foreground: var(--cream);
+  --destructive: oklch(0.55 0.18 28);
+  --destructive-foreground: var(--cream);
+  --border: oklch(0.82 0.022 85);
+  --input: oklch(0.82 0.022 85);
+  --ring: var(--sage);
+
+  --gradient-hero: linear-gradient(135deg, oklch(0.21 0.018 130) 0%, oklch(0.34 0.012 120) 100%);
+  --gradient-cream: linear-gradient(180deg, oklch(0.92 0.025 85) 0%, oklch(0.86 0.022 85) 100%);
+  --shadow-elegant: 0 30px 60px -20px oklch(0.21 0.018 130 / 0.3);
+  --shadow-card: 0 2px 14px -4px oklch(0.21 0.018 130 / 0.12);
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark {
+  --background: var(--ink);
+  --foreground: var(--cream);
+  --card: var(--charcoal);
+  --card-foreground: var(--cream);
+  --popover: var(--ink);
+  --popover-foreground: var(--cream);
+  --primary: var(--cream);
+  --primary-foreground: var(--ink);
+  --secondary: var(--charcoal);
+  --secondary-foreground: var(--cream);
+  --muted: var(--charcoal);
+  --muted-foreground: oklch(0.7 0.018 85);
+  --accent: var(--sage);
+  --accent-foreground: var(--ink);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--sage);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,h4 { font-family: var(--font-display); letter-spacing: 0.01em; }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .bg-gradient-hero { background: var(--gradient-hero); }
+  .bg-gradient-cream { background: var(--gradient-cream); }
+  .shadow-elegant { box-shadow: var(--shadow-elegant); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .transition-smooth { transition: var(--transition-smooth); }
+  .text-balance { text-wrap: balance; }
+}
