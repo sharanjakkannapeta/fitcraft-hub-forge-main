@@ -6,7 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
 import type { Product, Category } from "@/lib/types";
 
-
+export const Route = createFileRoute("/")({
+  component: Home,
+  head: () => ({
+    meta: [
+      { title: "FIT CRAFT HUB — Premium Gymnastics & Fitness Equipment" },
+      { name: "description", content: "Shop pro-grade rings, barbells, parallettes, recovery tools, and athletic apparel." },
+    ],
+  }),
+});
 
 export default function Home() {
   const [featured, setFeatured] = useState<Product[]>([]);

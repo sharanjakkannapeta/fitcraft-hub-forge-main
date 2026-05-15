@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 import type { Product, Category } from "@/lib/types";
 
 
+});
 
 export default function Home() {
   const [featured, setFeatured] = useState<Product[]>([]);
