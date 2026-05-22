@@ -1,182 +1,200 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Plus, Trash2, Edit2, Package, ShoppingCart, Tag } from "lucide-react";
-import type { Product } from "@/lib/types";
+import { 
+  LayoutDashboard, 
+  ShoppingCart, 
+  Package, 
+  Users, 
+  CreditCard, 
+  Bell, 
+  Mail, 
+  Tag, 
+  Settings, 
+  LogOut,
+  Menu,
+  X,
+  Dumbbell
+} from "lucide-react";
+import { useState, useEffect } from "react";
 
-export const Route = createFileRoute("/admin")({ component: Admin });
+export const Route = createFileRoute("/admin")({ component: AdminLayout });
 
-interface Order { id: string; status: string; total: number; created_at: string; user_id: string | null; tracking_number: string | null }
+const NAV_ITEMS = [
+  { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
+  { label: "Orders", path: "/admin/orders", icon: ShoppingCart },
+  { label: "Products", path: "/admin/products", icon: Package },
+  { label: "Suppliers", path: "/admin/suppliers", icon: Users },
+  { label: "Customers", path: "/admin/customers", icon: Users },
+  { label: "Payments", path: "/admin/payments", icon: CreditCard },
+  { label: "Notifications", path: "/admin/notifications", icon: Bell },
+  { label: "Emails", path: "/admin/emails", icon: Mail },
+  { label: "Coupons", path: "/admin/coupons", icon: Tag },
+  { label: "Settings", path: "/admin/settings", icon: Settings },
+];
 
-function Admin() {
-  const { user, loading, isAdmin } = useAuth();
+function AdminLayout() {
+  const { user, loading, isAdmin, signOut } = useAuth();
   const nav = useNavigate();
-  const [tab, setTab] = useState<"products" | "orders" | "coupons">("products");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [coupons, setCoupons] = useState<{ id: string; code: string; discount_type: string; discount_value: number; active: boolean }[]>([]);
-  const [editing, setEditing] = useState<Partial<Product> | null>(null);
+  const routerState = useRouterState();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const reload = async () => {
-    const [p, o, c] = await Promise.all([
-      supabase.from("products").select("*").order("created_at", { ascending: false }),
-      supabase.from("orders").select("id, status, total, created_at, user_id, tracking_number").order("created_at", { ascending: false }),
-      supabase.from("coupons").select("id, code, discount_type, discount_value, active"),
-    ]);
-    setProducts((p.data ?? []) as Product[]);
-    setOrders((o.data ?? []) as Order[]);
-    setCoupons((c.data ?? []) as typeof coupons);
-  };
-  useEffect(() => { if (isAdmin) reload(); }, [isAdmin]);
+  useEffect(() => {
+    if (!loading && !user) {
+      nav({ to: "/login" });
+    }
+  }, [user, loading, nav]);
 
-  if (loading) return <div className="container mx-auto px-4 py-20 text-center">Loading…</div>;
-  if (!user) { nav({ to: "/login" }); return null; }
-  if (!isAdmin) return (
-    <div className="container mx-auto px-4 py-20 text-center">
-      <h1 className="font-display text-4xl">Admin access required</h1>
-      <p className="mt-2 text-muted-foreground">Your account ID: <code className="rounded bg-secondary px-2 py-0.5 font-mono text-xs">{user.id}</code></p>
-      <p className="mt-2 text-sm text-muted-foreground">To grant yourself admin access, ask the assistant to insert your user ID into the user_roles table with role = 'admin'.</p>
-    </div>
-  );
+  useEffect(() => {
+    if (isAdmin) {
+      const fetchUnread = async () => {
+        const { count } = await supabase
+          .from("notifications")
+          .select("*", { count: "exact", head: true })
+          .eq("is_read", false);
+        setUnreadCount(count || 0);
+      };
+      fetchUnread();
 
-  const saveProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editing) return;
-    const payload = {
-      name: editing.name ?? "",
-      slug: (editing.slug ?? editing.name ?? "").toString().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-      description: editing.description ?? "",
-      price: Number(editing.price ?? 0),
-      compare_at_price: editing.compare_at_price ? Number(editing.compare_at_price) : null,
-      stock: Number(editing.stock ?? 0),
-      brand: editing.brand ?? "",
-      image_url: editing.image_url ?? "",
-      is_featured: !!editing.is_featured,
-      is_best_seller: !!editing.is_best_seller,
-    };
-    const { error } = editing.id
-      ? await supabase.from("products").update(payload).eq("id", editing.id)
-      : await supabase.from("products").insert(payload);
-    if (error) toast.error(error.message); else { toast.success("Saved"); setEditing(null); reload(); }
-  };
+      const channel = supabase
+        .channel("admin_notifications")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications" },
+          (payload) => {
+            setUnreadCount((prev) => prev + 1);
+          }
+        )
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [isAdmin]);
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm("Delete this product?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Deleted"); reload(); }
-  };
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
-  const updateOrder = async (id: string, patch: Record<string, unknown>) => {
-    const { error } = await supabase.from("orders").update(patch as never).eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Updated"); reload(); }
+  if (!isAdmin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <h1 className="font-display text-4xl">Access Denied</h1>
+          <p className="mt-2 text-muted-foreground">You do not have admin privileges.</p>
+          <button 
+            onClick={() => nav({ to: "/" })}
+            className="mt-6 rounded-md bg-foreground px-5 py-2.5 text-sm font-semibold text-primary-foreground uppercase tracking-wider"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleLogout = async () => {
+    await signOut();
+    nav({ to: "/" });
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="font-display text-5xl">Admin Dashboard</h1>
-
-      <div className="mt-6 grid gap-3 md:grid-cols-3">
-        <Stat icon={Package} label="Products" value={products.length} />
-        <Stat icon={ShoppingCart} label="Orders" value={orders.length} />
-        <Stat icon={Tag} label="Active Coupons" value={coupons.filter((c) => c.active).length} />
-      </div>
-
-      <div className="mt-8 flex gap-1 border-b border-border">
-        {(["products", "orders", "coupons"] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`border-b-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-smooth ${tab === t ? "border-accent text-foreground" : "border-transparent text-muted-foreground"}`}>{t}</button>
-        ))}
-      </div>
-
-      {tab === "products" && (
-        <div className="mt-6">
-          <button onClick={() => setEditing({})} className="mb-4 inline-flex items-center gap-2 rounded-md bg-foreground px-4 py-2 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:bg-accent hover:text-accent-foreground"><Plus className="h-4 w-4" /> New product</button>
-          <div className="overflow-hidden rounded-lg border border-border">
-            <table className="w-full text-sm">
-              <thead className="bg-secondary text-xs uppercase tracking-wider">
-                <tr><th className="p-3 text-left">Product</th><th className="p-3 text-left">Price</th><th className="p-3 text-left">Stock</th><th className="p-3 text-right">Actions</th></tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id} className="border-t border-border">
-                    <td className="p-3"><div className="flex items-center gap-3">{p.image_url && <img src={p.image_url} alt="" className="h-10 w-10 rounded object-cover" />}<span className="font-medium">{p.name}</span></div></td>
-                    <td className="p-3">${p.price.toFixed(2)}</td>
-                    <td className="p-3">{p.stock}</td>
-                    <td className="p-3 text-right"><button onClick={() => setEditing(p)} className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded hover:bg-secondary"><Edit2 className="h-4 w-4" /></button><button onClick={() => deleteProduct(p.id)} className="inline-flex h-8 w-8 items-center justify-center rounded text-destructive hover:bg-secondary"><Trash2 className="h-4 w-4" /></button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    <div className="flex min-h-screen bg-muted/30">
+      {/* Sidebar */}
+      <aside 
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#111] text-white transition-transform duration-300 md:static md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-white/10">
+          <Link to="/admin" className="flex items-center gap-2 font-display text-xl text-white">
+            <Dumbbell className="h-6 w-6 text-[#ff6b00]" />
+            FitCraft <span className="text-[#ff6b00]">Admin</span>
+          </Link>
+          <button className="md:hidden text-white/70" onClick={() => setSidebarOpen(false)}>
+            <X className="h-5 w-5" />
+          </button>
         </div>
-      )}
+        
+        <nav className="flex-1 overflow-y-auto py-4">
+          <ul className="space-y-1 px-3">
+            {NAV_ITEMS.map((item) => {
+              const isActive = routerState.location.pathname === item.path;
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                      isActive 
+                        ? "bg-[#ff6b00] text-white" 
+                        : "text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                    {item.label === "Notifications" && unreadCount > 0 && (
+                      <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] text-white">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        
+        <div className="border-t border-white/10 p-4">
+          <button 
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        </div>
+      </aside>
 
-      {tab === "orders" && (
-        <div className="mt-6 space-y-3">
-          {orders.map((o) => (
-            <div key={o.id} className="rounded-lg border border-border bg-card p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="font-mono text-xs text-muted-foreground">#{o.id.slice(0, 8).toUpperCase()}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString()}</p>
-                </div>
-                <p className="font-display text-2xl">${o.total.toFixed(2)}</p>
-                <select value={o.status} onChange={(e) => updateOrder(o.id, { status: e.target.value })} className="rounded-md border border-border bg-background px-3 py-1.5 text-xs">
-                  {["pending", "paid", "processing", "shipped", "delivered", "cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <input placeholder="Tracking #" defaultValue={o.tracking_number ?? ""} onBlur={(e) => e.target.value !== (o.tracking_number ?? "") && updateOrder(o.id, { tracking_number: e.target.value })} className="rounded-md border border-border bg-background px-3 py-1.5 text-xs" />
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col overflow-hidden bg-background">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-6 shadow-sm">
+          <div className="flex items-center gap-4">
+            <button className="md:hidden" onClick={() => setSidebarOpen(true)}>
+              <Menu className="h-6 w-6 text-foreground" />
+            </button>
+            <h2 className="font-semibold text-lg hidden md:block">
+              {NAV_ITEMS.find((i) => i.path === routerState.location.pathname)?.label || "Admin Dashboard"}
+            </h2>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/admin/notifications" className="relative text-foreground hover:text-accent transition-colors">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold text-sm">
+                {user?.email?.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden text-sm md:block">
+                <p className="font-medium">{user?.email}</p>
+                <p className="text-xs text-muted-foreground">Administrator</p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        </header>
 
-      {tab === "coupons" && (
-        <div className="mt-6 space-y-2">
-          {coupons.map((c) => (
-            <div key={c.id} className="flex items-center justify-between rounded-md border border-border bg-card p-4">
-              <div><p className="font-mono font-bold">{c.code}</p><p className="text-xs text-muted-foreground">{c.discount_type === "percent" ? `${c.discount_value}% off` : `$${c.discount_value} off`}</p></div>
-              <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${c.active ? "bg-accent/15 text-accent" : "bg-muted text-muted-foreground"}`}>{c.active ? "Active" : "Inactive"}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-4" onClick={() => setEditing(null)}>
-          <form onSubmit={saveProduct} onClick={(e) => e.stopPropagation()} className="w-full max-w-lg space-y-3 rounded-lg bg-background p-6 shadow-elegant">
-            <h2 className="font-display text-2xl">{editing.id ? "Edit" : "New"} product</h2>
-            <input required placeholder="Name" value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
-            <input placeholder="Slug (auto from name)" value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
-            <textarea placeholder="Description" value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" rows={3} />
-            <div className="grid grid-cols-3 gap-2">
-              <input required type="number" step="0.01" placeholder="Price" value={editing.price ?? ""} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} className="rounded-md border border-border bg-background px-3 py-2 text-sm" />
-              <input type="number" step="0.01" placeholder="Compare at" value={editing.compare_at_price ?? ""} onChange={(e) => setEditing({ ...editing, compare_at_price: +e.target.value })} className="rounded-md border border-border bg-background px-3 py-2 text-sm" />
-              <input type="number" placeholder="Stock" value={editing.stock ?? ""} onChange={(e) => setEditing({ ...editing, stock: +e.target.value })} className="rounded-md border border-border bg-background px-3 py-2 text-sm" />
-            </div>
-            <input placeholder="Brand" value={editing.brand ?? ""} onChange={(e) => setEditing({ ...editing, brand: e.target.value })} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
-            <input placeholder="Image URL" value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
-            <div className="flex gap-4 text-sm">
-              <label className="flex items-center gap-2"><input type="checkbox" checked={!!editing.is_featured} onChange={(e) => setEditing({ ...editing, is_featured: e.target.checked })} className="accent-accent" /> Featured</label>
-              <label className="flex items-center gap-2"><input type="checkbox" checked={!!editing.is_best_seller} onChange={(e) => setEditing({ ...editing, is_best_seller: e.target.checked })} className="accent-accent" /> Best seller</label>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => setEditing(null)} className="rounded-md border border-border px-4 py-2 text-xs font-semibold uppercase tracking-wider">Cancel</button>
-              <button className="rounded-md bg-foreground px-5 py-2 text-xs font-bold uppercase tracking-wider text-primary-foreground hover:bg-accent hover:text-accent-foreground">Save</button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Stat({ icon: Icon, label, value }: { icon: typeof Package; label: string; value: number }) {
-  return (
-    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-5">
-      <div className="rounded-md bg-accent/15 p-3 text-accent"><Icon className="h-5 w-5" /></div>
-      <div><p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p><p className="font-display text-3xl">{value}</p></div>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#f8f9fa] dark:bg-background">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

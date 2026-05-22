@@ -13,13 +13,9 @@ export function ProductCard({ product }: { product: Product }) {
     e.preventDefault();
     e.stopPropagation();
 
-    const existingCart = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const existingItem = existingCart.find(
-      (item: any) => item.id === product.id
-    );
+    const existingItem = existingCart.find((item: any) => item.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += 1;
@@ -30,18 +26,13 @@ export function ProductCard({ product }: { product: Product }) {
       });
     }
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(existingCart)
-    );
+    localStorage.setItem("cart", JSON.stringify(existingCart));
 
     toast.success(`${product.name} added to cart`);
   };
 
   // ADD TO WISHLIST
-  const addToWishlist = async (
-    e: React.MouseEvent
-  ) => {
+  const addToWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -50,12 +41,10 @@ export function ProductCard({ product }: { product: Product }) {
       return;
     }
 
-    const { error } = await supabase
-      .from("wishlist_items")
-      .insert({
-        user_id: user.id,
-        product_id: product.id,
-      });
+    const { error } = await supabase.from("wishlist_items").insert({
+      user_id: user.id,
+      product_id: product.id,
+    });
 
     if (error?.code === "23505") {
       toast.info("Already in wishlist");
@@ -68,12 +57,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   // DISCOUNT
   const discount = product.compare_at_price
-    ? Math.round(
-        (1 -
-          product.price /
-            product.compare_at_price) *
-          100
-      )
+    ? Math.round((1 - product.price / product.compare_at_price) * 100)
     : 0;
 
   return (
@@ -85,10 +69,7 @@ export function ProductCard({ product }: { product: Product }) {
       {/* IMAGE */}
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
-          src={
-            product.image_url ||
-            "https://via.placeholder.com/500"
-          }
+          src={product.image_url || "https://via.placeholder.com/500"}
           alt={product.name}
           loading="lazy"
           className="h-full w-full object-cover transition-smooth group-hover:scale-105"
@@ -125,9 +106,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.brand}
         </p>
 
-        <h3 className="mt-1 line-clamp-1 text-sm font-semibold text-foreground">
-          {product.name}
-        </h3>
+        <h3 className="mt-1 line-clamp-1 text-sm font-semibold text-foreground">{product.name}</h3>
 
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-baseline gap-2">

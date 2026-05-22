@@ -18,15 +18,22 @@ function Login() {
     setLoading(true);
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({
-        email, password,
+        email,
+        password,
         options: { emailRedirectTo: `${window.location.origin}/`, data: { full_name: name } },
       });
       if (error) toast.error(error.message);
-      else { toast.success("Account created — you're in."); nav({ to: "/" }); }
+      else {
+        toast.success("Account created — you're in.");
+        nav({ to: "/" });
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) toast.error(error.message);
-      else { toast.success("Welcome back."); nav({ to: "/" }); }
+      else {
+        toast.success("Welcome back.");
+        nav({ to: "/" });
+      }
     }
     setLoading(false);
   };
@@ -40,20 +47,56 @@ function Login() {
         </Link>
         <div className="mt-8 rounded-lg border border-border bg-card p-8 shadow-card">
           <div className="mb-6 grid grid-cols-2 gap-1 rounded-md bg-secondary p-1 text-xs font-semibold uppercase tracking-wider">
-            <button onClick={() => setMode("signin")} className={`rounded-md py-2 transition-smooth ${mode === "signin" ? "bg-background shadow-sm" : "text-muted-foreground"}`}>Sign in</button>
-            <button onClick={() => setMode("signup")} className={`rounded-md py-2 transition-smooth ${mode === "signup" ? "bg-background shadow-sm" : "text-muted-foreground"}`}>Sign up</button>
+            <button
+              onClick={() => setMode("signin")}
+              className={`rounded-md py-2 transition-smooth ${mode === "signin" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+            >
+              Sign in
+            </button>
+            <button
+              onClick={() => setMode("signup")}
+              className={`rounded-md py-2 transition-smooth ${mode === "signup" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+            >
+              Sign up
+            </button>
           </div>
           <form onSubmit={submit} className="space-y-3">
             {mode === "signup" && (
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm focus:border-accent focus:outline-none" />
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Full name"
+                required
+                className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm focus:border-accent focus:outline-none"
+              />
             )}
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm focus:border-accent focus:outline-none" />
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required minLength={6} className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm focus:border-accent focus:outline-none" />
-            <button disabled={loading} className="w-full rounded-md bg-foreground py-3 text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              required
+              className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm focus:border-accent focus:outline-none"
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              required
+              minLength={6}
+              className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm focus:border-accent focus:outline-none"
+            />
+            <button
+              disabled={loading}
+              className="w-full rounded-md bg-foreground py-3 text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+            >
               {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
             </button>
           </form>
-          <p className="mt-4 text-center text-xs text-muted-foreground">Email confirmation may be required depending on your project settings.</p>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Email confirmation may be required depending on your project settings.
+          </p>
         </div>
       </div>
     </div>

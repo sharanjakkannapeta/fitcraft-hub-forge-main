@@ -25,45 +25,33 @@ function CheckoutPage() {
 
   // LOAD CART ITEMS
   useEffect(() => {
-    const storedCart = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
+    const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
     setCartItems(storedCart);
   }, []);
 
   // REMOVE ITEM
   const removeItem = (id: string) => {
-    const updatedCart = cartItems.filter(
-      (item) => item.id !== id
-    );
+    const updatedCart = cartItems.filter((item) => item.id !== id);
 
     setCartItems(updatedCart);
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
 
     toast.success("Item removed");
   };
 
   // TOTAL
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   // PAYMENT
   const handlePayment = async () => {
-
     // LOAD SCRIPT
     const loadScript = () => {
       return new Promise((resolve) => {
         const script = document.createElement("script");
 
-        script.src =
-          "https://checkout.razorpay.com/v1/checkout.js";
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
 
         script.onload = () => {
           resolve(true);
@@ -96,7 +84,6 @@ function CheckoutPage() {
       description: "Fitness Product Payment",
 
       handler: function (response: any) {
-
         toast.success("Payment Successful");
 
         console.log(response);
@@ -124,27 +111,15 @@ function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-10">
-
-      <h1 className="mb-8 text-4xl font-bold">
-        Checkout
-      </h1>
+      <h1 className="mb-8 text-4xl font-bold">Checkout</h1>
 
       {cartItems.length === 0 ? (
-
         <p>Your cart is empty</p>
-
       ) : (
-
         <>
           <div className="space-y-6">
-
             {cartItems.map((item) => (
-
-              <div
-                key={item.id}
-                className="flex items-center gap-4 rounded-lg border p-4"
-              >
-
+              <div key={item.id} className="flex items-center gap-4 rounded-lg border p-4">
                 <img
                   src={item.image_url}
                   alt={item.name}
@@ -152,26 +127,15 @@ function CheckoutPage() {
                 />
 
                 <div className="flex-1">
-
                   <div className="flex items-start justify-between">
-
                     <div>
+                      <h2 className="text-lg font-semibold">{item.name}</h2>
 
-                      <h2 className="text-lg font-semibold">
-                        {item.name}
-                      </h2>
-
-                      <p>
-                        Quantity: {item.quantity}
-                      </p>
+                      <p>Quantity: {item.quantity}</p>
 
                       <p className="font-bold">
-                        ₹
-                        {(
-                          item.price * item.quantity
-                        ).toLocaleString("en-IN")}
+                        ₹{(item.price * item.quantity).toLocaleString("en-IN")}
                       </p>
-
                     </div>
 
                     <button
@@ -180,51 +144,38 @@ function CheckoutPage() {
                     >
                       Delete
                     </button>
-
                   </div>
-
                 </div>
-
               </div>
-
             ))}
-
           </div>
 
           <div className="mt-10 rounded-lg border p-6">
-
-            <h2 className="text-2xl font-bold">
-              Total: ₹
-              {total.toLocaleString("en-IN")}
-            </h2>
+            <h2 className="text-2xl font-bold">Total: ₹{total.toLocaleString("en-IN")}</h2>
 
             <div className="mt-6 space-y-4">
+              {/* ONLINE PAYMENT */}
+              <button
+                onClick={handlePayment}
+                className="w-full rounded-md bg-black px-6 py-4 text-white"
+              >
+                Pay with Razorpay
+              </button>
 
-  {/* ONLINE PAYMENT */}
-  <button
-    onClick={handlePayment}
-    className="w-full rounded-md bg-black px-6 py-4 text-white"
-  >
-    Pay with Razorpay
-  </button>
+              {/* CASH ON DELIVERY */}
+              <button
+                onClick={() => {
+                  toast.success("Order placed successfully");
 
-  {/* CASH ON DELIVERY */}
-  <button
-    onClick={() => {
+                  localStorage.removeItem("cart");
 
-      toast.success("Order placed successfully");
-
-      localStorage.removeItem("cart");
-
-      setCartItems([]);
-    }}
-    className="w-full rounded-md bg-green-600 px-6 py-4 text-white"
-  >
-    Cash on Delivery
-  </button>
-
-</div>
-
+                  setCartItems([]);
+                }}
+                className="w-full rounded-md bg-green-600 px-6 py-4 text-white"
+              >
+                Cash on Delivery
+              </button>
+            </div>
           </div>
         </>
       )}

@@ -1,6 +1,6 @@
 @import "tailwindcss" source(none);
-@source "../src";
 @import "tw-animate-css";
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -40,10 +40,10 @@
    #181C14 ink · #3C3D37 charcoal · #697565 sage · #ECDFCC cream */
 :root {
   --radius: 0.5rem;
-  --ink: oklch(0.21 0.018 130);          /* #181C14 */
-  --charcoal: oklch(0.34 0.012 120);     /* #3C3D37 */
-  --sage: oklch(0.55 0.035 130);         /* #697565 */
-  --cream: oklch(0.92 0.025 85);         /* #ECDFCC */
+  --ink: oklch(0.21 0.018 130); /* #181C14 */
+  --charcoal: oklch(0.34 0.012 120); /* #3C3D37 */
+  --sage: oklch(0.55 0.035 130); /* #697565 */
+  --cream: oklch(0.92 0.025 85); /* #ECDFCC */
 
   --background: var(--cream);
   --foreground: var(--ink);
@@ -93,23 +93,47 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1,h2,h3,h4 { font-family: var(--font-display); letter-spacing: 0.01em; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
 }
 
 @layer utilities {
-  .font-display { font-family: var(--font-display); }
-  .bg-gradient-hero { background: var(--gradient-hero); }
-  .bg-gradient-cream { background: var(--gradient-cream); }
-  .shadow-elegant { box-shadow: var(--shadow-elegant); }
-  .shadow-card { box-shadow: var(--shadow-card); }
-  .transition-smooth { transition: var(--transition-smooth); }
-  .text-balance { text-wrap: balance; }
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .bg-gradient-cream {
+    background: var(--gradient-cream);
+  }
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
