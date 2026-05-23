@@ -12,8 +12,8 @@ import { createClient } from "@supabase/supabase-js";
 // ══════════════════════════════════════════
 // 🔧 REPLACE WITH YOUR ACTUAL VALUES
 // ══════════════════════════════════════════
-const SUPABASE_URL = "pakkywdnawqrtdvoxbyo";
-const SUPABASE_ANON_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBha2t5d2RuYXdxcnRkdm94YnlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzAyNTAsImV4cCI6MjA5MzgwNjI1MH0.pisqNgGYJGBHk-IeKn46lPvVI0cCjPnzSO0vLIW_Pzg";
+const SUPABASE_URL = pakkywdnawqrtdvoxbyo;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBha2t5d2RuYXdxcnRkdm94YnlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzAyNTAsImV4cCI6MjA5MzgwNjI1MH0.pisqNgGYJGBHk-IeKn46lPvVI0cCjPnzSO0vLIW_Pzg";
 // ══════════════════════════════════════════
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
