@@ -149,7 +149,7 @@ function Shop() {
             <input
               type="range"
               min={20}
-              max={10000}
+              max={1000}
               step={10}
               value={maxPrice}
               onChange={(e) => setMaxPrice(+e.target.value)}

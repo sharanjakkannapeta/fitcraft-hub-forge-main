@@ -144,7 +144,7 @@ function Shop() {
           </div>
           <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground">
-              Max price: ₹{maxPrice}
+              MaxMax price: ₹{maxPrice}
             </h3>
             <input
               type="range"
