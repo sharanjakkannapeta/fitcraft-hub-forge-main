@@ -3,321 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Panel</title>
+  <title>FitCraft Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
-      --bg: #0f1117;
-      --card: #1a1d27;
-      --border: #2a2d3a;
-      --accent: #6c63ff;
-      --accent2: #00d4aa;
-      --text: #e8e9f0;
-      --muted: #6b7280;
-      --danger: #ef4444;
-      --success: #22c55e;
-      --warning: #f59e0b;
+      --bg: #0f1117; --card: #1a1d27; --border: #2a2d3a;
+      --accent: #6c63ff; --accent2: #00d4aa; --text: #e8e9f0;
+      --muted: #6b7280; --danger: #ef4444; --success: #22c55e; --warning: #f59e0b;
     }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ───── LOGIN PAGE ───── */
-    #loginPage {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(ellipse at 60% 40%, #1e1b4b 0%, #0f1117 60%);
-    }
-
-    .login-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-    }
-
-    .login-logo {
-      font-size: 28px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
-    }
-
-    .login-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 32px;
-    }
-
+    /* LOGIN */
+    #loginPage { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at 60% 40%, #1e1b4b 0%, #0f1117 60%); }
+    .login-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); }
+    .login-logo { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
     .field { margin-bottom: 18px; }
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .field input {
-      width: 100%;
-      background: #0f1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 14px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .field input:focus { border-color: var(--accent); }
-
-    .btn-login {
-      width: 100%;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s;
-    }
-
+    .field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .field input, .field textarea, .field select { width: 100%; background: #0f1117; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14px; color: var(--text); outline: none; transition: border-color 0.2s; font-family: inherit; }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+    .field textarea { resize: none; height: 80px; }
+    .btn-login { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
     .btn-login:hover { opacity: 0.9; }
     .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 14px; display: none; }
 
-    .error-msg {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-top: 14px;
-      display: none;
-    }
-
-    /* ───── ADMIN DASHBOARD ───── */
+    /* ADMIN */
     #adminPage { display: none; }
-
-    .sidebar {
-      position: fixed;
-      left: 0; top: 0;
-      width: 220px;
-      height: 100vh;
-      background: var(--card);
-      border-right: 1px solid var(--border);
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 100;
-    }
-
-    .sidebar-logo {
-      font-size: 18px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 24px;
-      padding: 0 8px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--muted);
-      transition: all 0.2s;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
-
+    .sidebar { position: fixed; left: 0; top: 0; width: 220px; height: 100vh; background: var(--card); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; z-index: 100; }
+    .sidebar-logo { font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px; padding: 0 8px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--muted); transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; }
     .nav-item:hover { background: rgba(108,99,255,0.1); color: var(--text); }
     .nav-item.active { background: rgba(108,99,255,0.15); color: var(--accent); font-weight: 500; }
-
-    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-
-    .logout-btn {
-      margin-top: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--danger);
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      transition: background 0.2s;
-    }
-
+    .logout-btn { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--danger); border: none; background: none; width: 100%; text-align: left; transition: background 0.2s; }
     .logout-btn:hover { background: rgba(239,68,68,0.1); }
+    .main { margin-left: 220px; padding: 32px; min-height: 100vh; }
+    .page-title { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+    .section { display: none; }
+    .section.active { display: block; }
 
-    .main {
-      margin-left: 220px;
-      padding: 32px;
-      min-height: 100vh;
-    }
-
-    .page-title {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 24px;
-    }
-
-    /* Stats */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
-
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
     .stat-value { font-size: 28px; font-weight: 700; }
     .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-    /* Table */
-    .table-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .table-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
+    /* TABLE */
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .table-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
     .table-title { font-size: 15px; font-weight: 600; }
-
-    .refresh-btn {
-      padding: 6px 14px;
-      background: rgba(108,99,255,0.15);
-      border: 1px solid rgba(108,99,255,0.3);
-      border-radius: 6px;
-      color: var(--accent);
-      font-size: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
+    .refresh-btn { padding: 6px 14px; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); border-radius: 6px; color: var(--accent); font-size: 12px; cursor: pointer; }
     .refresh-btn:hover { background: rgba(108,99,255,0.25); }
-
     table { width: 100%; border-collapse: collapse; }
-    th {
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-    }
-
-    td {
-      padding: 14px 16px;
-      font-size: 13px;
-      border-bottom: 1px solid rgba(42,45,58,0.5);
-    }
-
+    th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(42,45,58,0.5); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(255,255,255,0.02); }
 
-    .status-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-
+    /* BADGES */
+    .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
     .status-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .status-confirmed { background: rgba(34,197,94,0.15); color: var(--success); }
     .status-shipped { background: rgba(108,99,255,0.15); color: #a78bfa; }
-    .status-delivered { background: rgba(34,197,94,0.15); color: var(--success); }
+    .status-delivered { background: rgba(0,212,170,0.15); color: var(--accent2); }
     .status-cancelled { background: rgba(239,68,68,0.15); color: var(--danger); }
 
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-
-    .empty-icon { font-size: 40px; margin-bottom: 12px; }
-    .empty-text { font-size: 14px; }
-
-    .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
-
-    /* Tracking input */
-    .tracking-input {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 8px;
-      color: var(--text);
-      font-size: 12px;
-      width: 130px;
-      outline: none;
-    }
-
+    /* ACTION BUTTONS */
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .btn-confirm { padding: 5px 10px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; color: var(--success); font-size: 11px; cursor: pointer; font-weight: 500; }
+    .btn-confirm:hover { background: rgba(34,197,94,0.25); }
+    .btn-cancel { padding: 5px 10px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: var(--danger); font-size: 11px; cursor: pointer; font-weight: 500; }
+    .btn-cancel:hover { background: rgba(239,68,68,0.25); }
+    .btn-whatsapp { padding: 5px 10px; background: rgba(37,211,102,0.15); border: 1px solid rgba(37,211,102,0.3); border-radius: 6px; color: #25d366; font-size: 11px; cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; }
+    .btn-whatsapp:hover { background: rgba(37,211,102,0.25); }
+    .tracking-input { background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; color: var(--text); font-size: 12px; width: 110px; outline: none; }
     .tracking-input:focus { border-color: var(--accent); }
-
-    .save-btn {
-      padding: 4px 10px;
-      background: rgba(0,212,170,0.15);
-      border: 1px solid rgba(0,212,170,0.3);
-      border-radius: 5px;
-      color: var(--accent2);
-      font-size: 11px;
-      cursor: pointer;
-      margin-left: 4px;
-    }
-
+    .save-btn { padding: 4px 10px; background: rgba(0,212,170,0.15); border: 1px solid rgba(0,212,170,0.3); border-radius: 5px; color: var(--accent2); font-size: 11px; cursor: pointer; }
     .save-btn:hover { background: rgba(0,212,170,0.25); }
 
-    /* Sections */
-    .section { display: none; }
-    .section.active { display: block; }
+    /* EMPTY / LOADING */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
+    /* ADD PRODUCT FORM */
+    .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .form-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text); }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .btn-add { padding: 12px 24px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; transition: opacity 0.2s; }
+    .btn-add:hover { opacity: 0.9; }
+    .btn-add:disabled { opacity: 0.5; }
+    .btn-delete { padding: 5px 10px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: var(--danger); font-size: 11px; cursor: pointer; }
+    .btn-delete:hover { background: rgba(239,68,68,0.25); }
+    .success-msg { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px; display: none; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 90%; max-width: 500px; }
+    .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+    .modal-detail { display: flex; gap: 8px; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+    .modal-detail:last-of-type { border-bottom: none; }
+    .modal-label { color: var(--muted); min-width: 110px; flex-shrink: 0; }
+    .modal-value { color: var(--text); font-weight: 500; }
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .btn-modal-confirm { flex: 1; padding: 10px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; color: var(--success); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-modal-confirm:hover { background: rgba(34,197,94,0.25); }
+    .btn-modal-cancel { flex: 1; padding: 10px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; color: var(--danger); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-modal-cancel:hover { background: rgba(239,68,68,0.25); }
+    .btn-modal-close { flex: 1; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 13px; cursor: pointer; }
 
     @media (max-width: 768px) {
       .sidebar { width: 60px; padding: 16px 8px; }
@@ -328,76 +124,61 @@
 </head>
 <body>
 
-<!-- ══════════ LOGIN PAGE ══════════ -->
+<!-- LOGIN -->
 <div id="loginPage">
   <div class="login-box">
-    <div class="login-logo">⚡ FitStore</div>
+    <div class="login-logo">⚡ FitCraft</div>
     <div class="login-sub">Admin Panel — Authorized Access Only</div>
-
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="emailInput" placeholder="admin@yourstore.com" />
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="passwordInput" placeholder="••••••••" />
-    </div>
+    <div class="field"><label>Email</label><input type="email" id="emailInput" placeholder="admin@yourstore.com"/></div>
+    <div class="field"><label>Password</label><input type="password" id="passwordInput" placeholder="••••••••"/></div>
     <button class="btn-login" id="loginBtn" onclick="doLogin()">Login to Admin</button>
     <div class="error-msg" id="errorMsg"></div>
   </div>
 </div>
 
-<!-- ══════════ ADMIN DASHBOARD ══════════ -->
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <div class="modal-title">📦 Order Details</div>
+    <div id="modalContent"></div>
+    <div class="modal-btns">
+      <button class="btn-modal-confirm" id="modalConfirmBtn">✅ Confirm Order</button>
+      <button class="btn-modal-cancel" id="modalCancelBtn">❌ Cancel Order</button>
+      <button class="btn-modal-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
 <div id="adminPage">
   <div class="sidebar">
     <div class="sidebar-logo">⚡ Admin</div>
-    <button class="nav-item active" onclick="showSection('orders')">
-      <span class="nav-icon">📦</span>
-      <span class="nav-label">Orders</span>
+    <button class="nav-item active" onclick="showSection('orders', this)">
+      <span>📦</span><span class="nav-label">Orders</span>
     </button>
-    <button class="nav-item" onclick="showSection('products')">
-      <span class="nav-icon">🏋️</span>
-      <span class="nav-label">Products</span>
+    <button class="nav-item" onclick="showSection('products', this)">
+      <span>🏋️</span><span class="nav-label">Products</span>
     </button>
-    <button class="nav-item" onclick="showSection('customers')">
-      <span class="nav-icon">👥</span>
-      <span class="nav-label">Customers</span>
+    <button class="nav-item" onclick="showSection('customers', this)">
+      <span>👥</span><span class="nav-label">Customers</span>
     </button>
     <button class="logout-btn" onclick="doLogout()">
-      <span class="nav-icon">🚪</span>
-      <span class="nav-label">Logout</span>
+      <span>🚪</span><span class="nav-label">Logout</span>
     </button>
   </div>
 
   <div class="main">
 
-    <!-- ORDERS SECTION -->
+    <!-- ORDERS -->
     <div class="section active" id="section-orders">
       <div class="page-title">Orders</div>
-
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Orders</div>
-          <div class="stat-value" id="statTotal">—</div>
-          <div class="stat-sub">All time</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pending</div>
-          <div class="stat-value" style="color:var(--warning)" id="statPending">—</div>
-          <div class="stat-sub">Need to forward to Deodap</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Shipped</div>
-          <div class="stat-value" style="color:#a78bfa" id="statShipped">—</div>
-          <div class="stat-sub">In transit</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Delivered</div>
-          <div class="stat-value" style="color:var(--success)" id="statDelivered">—</div>
-          <div class="stat-sub">Completed</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="statTotal">—</div></div>
+        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--warning)" id="statPending">—</div><div class="stat-sub">Needs confirmation</div></div>
+        <div class="stat-card"><div class="stat-label">Confirmed</div><div class="stat-value" style="color:var(--success)" id="statConfirmed">—</div><div class="stat-sub">Forward to Deodap</div></div>
+        <div class="stat-card"><div class="stat-label">Shipped</div><div class="stat-value" style="color:#a78bfa" id="statShipped">—</div></div>
+        <div class="stat-card"><div class="stat-label">Delivered</div><div class="stat-value" style="color:var(--accent2)" id="statDelivered">—</div></div>
       </div>
-
       <div class="table-card">
         <div class="table-header">
           <div class="table-title">All Orders</div>
@@ -407,24 +188,46 @@
       </div>
     </div>
 
-    <!-- PRODUCTS SECTION -->
+    <!-- PRODUCTS -->
     <div class="section" id="section-products">
       <div class="page-title">Products</div>
+
+      <!-- ADD PRODUCT FORM -->
+      <div class="form-card">
+        <div class="form-title">➕ Add New Product</div>
+        <div class="form-grid">
+          <div class="field"><label>Product Name *</label><input type="text" id="pName" placeholder="e.g. Massage Gun"/></div>
+          <div class="field"><label>Price (₹) *</label><input type="number" id="pPrice" placeholder="e.g. 2999"/></div>
+          <div class="field"><label>Stock Quantity</label><input type="number" id="pStock" placeholder="e.g. 100"/></div>
+          <div class="field"><label>Category</label>
+            <select id="pCategory">
+              <option value="">Select category...</option>
+            </select>
+          </div>
+          <div class="field"><label>Image URL</label><input type="text" id="pImage" placeholder="https://..."/></div>
+          <div class="field"><label>Deodap Product URL</label><input type="text" id="pDeodap" placeholder="https://deodap.com/..."/></div>
+        </div>
+        <div class="field" style="margin-top:12px;"><label>Description</label><textarea id="pDesc" placeholder="Write product description..."></textarea></div>
+        <button class="btn-add" id="addProductBtn" onclick="addProduct()">➕ Add Product</button>
+        <div class="success-msg" id="productSuccess">✅ Product added successfully!</div>
+      </div>
+
+      <!-- PRODUCTS TABLE -->
       <div class="table-card">
         <div class="table-header">
-          <div class="table-title">Your Products</div>
+          <div class="table-title">All Products</div>
           <button class="refresh-btn" onclick="loadProducts()">↻ Refresh</button>
         </div>
         <div id="productsTable"><div class="loading">Loading products...</div></div>
       </div>
     </div>
 
-    <!-- CUSTOMERS SECTION -->
+    <!-- CUSTOMERS -->
     <div class="section" id="section-customers">
       <div class="page-title">Customers</div>
       <div class="table-card">
         <div class="table-header">
-          <div class="table-title">Registered Customers</div>
+          <div class="table-title">All Customers</div>
           <button class="refresh-btn" onclick="loadCustomers()">↻ Refresh</button>
         </div>
         <div id="customersTable"><div class="loading">Loading customers...</div></div>
@@ -436,16 +239,15 @@
 
 <script>
   // ══════════════════════════════════════════
-  // 🔧 REPLACE THESE WITH YOUR ACTUAL VALUES
-  // ══════════════════════════════════════════
   const SUPABASE_URL = 'https://pakkywdnawqrtdvoxbyo.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBha2t5d2RuYXdxcnRkdm94YnlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzAyNTAsImV4cCI6MjA5MzgwNjI1MH0.pisqNgGYJGBHk-IeKn46lPvVI0cCjPnzSO0vLIW_Pzg';
   // ══════════════════════════════════════════
 
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentOrderId = null;
 
-  // ── Check if already logged in ──
+  // ── Auto login check ──
   window.onload = async () => {
     const { data: { session } } = await sb.auth.getSession();
     if (session) showAdmin();
@@ -457,41 +259,27 @@
     const password = document.getElementById('passwordInput').value;
     const btn = document.getElementById('loginBtn');
     const err = document.getElementById('errorMsg');
-
-    if (!email || !password) {
-      showError('Please enter email and password.'); return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Logging in...';
-    err.style.display = 'none';
-
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-
+    if (!email || !password) { showError('Please enter email and password.'); return; }
+    btn.disabled = true; btn.textContent = 'Logging in...'; err.style.display = 'none';
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
-      showError('Invalid email or password. Please try again.');
-      btn.disabled = false;
-      btn.textContent = 'Login to Admin';
-      return;
+      showError('Invalid email or password.');
+      btn.disabled = false; btn.textContent = 'Login to Admin'; return;
     }
-
     showAdmin();
   }
 
   function showError(msg) {
     const err = document.getElementById('errorMsg');
-    err.textContent = msg;
-    err.style.display = 'block';
+    err.textContent = msg; err.style.display = 'block';
   }
 
-  // ── Show Admin Dashboard ──
   function showAdmin() {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('adminPage').style.display = 'block';
     loadOrders();
   }
 
-  // ── Logout ──
   async function doLogout() {
     await sb.auth.signOut();
     document.getElementById('loginPage').style.display = 'flex';
@@ -499,13 +287,12 @@
   }
 
   // ── Navigation ──
-  function showSection(name) {
+  function showSection(name, el) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('section-' + name).classList.add('active');
-    event.currentTarget.classList.add('active');
-
-    if (name === 'products') loadProducts();
+    if (el) el.classList.add('active');
+    if (name === 'products') { loadProducts(); loadCategories(); }
     if (name === 'customers') loadCustomers();
   }
 
@@ -513,103 +300,225 @@
   async function loadOrders() {
     const el = document.getElementById('ordersTable');
     el.innerHTML = '<div class="loading">Loading orders...</div>';
-
     const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
-
-    if (error) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load orders. Check your Supabase table name.</div></div>';
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No orders yet. Share your store and start selling!</div></div>';
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No orders yet. Start selling!</div></div>';
       updateStats([]); return;
     }
-
     updateStats(data);
-
-    el.innerHTML = `
-      <table>
-        <thead>
+    el.innerHTML = `<div style="overflow-x:auto"><table>
+      <thead><tr>
+        <th>Order ID</th><th>Customer</th><th>Phone</th><th>Product</th>
+        <th>Amount</th><th>Payment</th><th>Status</th><th>Actions</th><th>AWB Tracking</th><th>Date</th>
+      </tr></thead>
+      <tbody>
+        ${data.map(o => `
           <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Product</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Tracking (AWB)</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.map(o => `
-            <tr>
-              <td style="font-family:monospace;font-size:11px;color:var(--muted)">#${String(o.id).slice(0,8)}</td>
-              <td>${o.customer_name || '—'}</td>
-              <td>${o.phone || '—'}</td>
-              <td>${o.product_name || '—'}</td>
-              <td style="color:var(--accent2);font-weight:500">₹${o.amount || '—'}</td>
-              <td><span class="status-badge status-${(o.status||'pending').toLowerCase()}">${o.status || 'Pending'}</span></td>
-              <td>
-                <input class="tracking-input" id="track-${o.id}" placeholder="Enter AWB" value="${o.tracking_number || ''}" />
-                <button class="save-btn" onclick="saveTracking('${o.id}')">Save</button>
-              </td>
-              <td style="color:var(--muted);font-size:12px">${o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : '—'}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>`;
+            <td style="font-family:monospace;font-size:11px;color:var(--muted)">#${String(o.id).slice(0,8)}</td>
+            <td style="font-weight:500">${o.customer_name || '—'}</td>
+            <td>
+              ${o.phone ? `<a class="btn-whatsapp" href="https://wa.me/91${o.phone}?text=Hi%20${encodeURIComponent(o.customer_name||'')}%2C%20your%20FitCraft%20order%20is%20confirmed!" target="_blank">📱 ${o.phone}</a>` : '—'}
+            </td>
+            <td style="font-size:12px;max-width:150px">${o.product_name || '—'}</td>
+            <td style="color:var(--accent2);font-weight:500">₹${o.amount || '—'}</td>
+            <td><span style="font-size:11px;background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:20px">${o.payment_method || 'razorpay'}</span></td>
+            <td><span class="status-badge status-${(o.status||'pending').toLowerCase()}">${o.status || 'Pending'}</span></td>
+            <td>
+              <div class="action-btns">
+                ${o.status === 'pending' ? `
+                  <button class="btn-confirm" onclick="openOrderModal('${o.id}')">✅ View & Confirm</button>
+                ` : ''}
+                ${o.status === 'confirmed' ? `
+                  <button class="btn-confirm" style="background:rgba(108,99,255,0.15);border-color:rgba(108,99,255,0.3);color:#a78bfa" onclick="updateStatus('${o.id}', 'shipped')">🚚 Mark Shipped</button>
+                ` : ''}
+                ${o.status === 'shipped' ? `
+                  <button class="btn-confirm" onclick="updateStatus('${o.id}', 'delivered')">✅ Mark Delivered</button>
+                ` : ''}
+                ${(o.status !== 'cancelled' && o.status !== 'delivered') ? `
+                  <button class="btn-cancel" onclick="updateStatus('${o.id}', 'cancelled')">❌ Cancel</button>
+                ` : ''}
+              </div>
+            </td>
+            <td>
+              <input class="tracking-input" id="track-${o.id}" placeholder="Enter AWB" value="${o.tracking_number || ''}"/>
+              <button class="save-btn" onclick="saveTracking('${o.id}')">Save</button>
+            </td>
+            <td style="color:var(--muted);font-size:11px">${o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : '—'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
   }
 
   // ── Update Stats ──
   function updateStats(orders) {
     document.getElementById('statTotal').textContent = orders.length;
     document.getElementById('statPending').textContent = orders.filter(o => !o.status || o.status === 'pending').length;
+    document.getElementById('statConfirmed').textContent = orders.filter(o => o.status === 'confirmed').length;
     document.getElementById('statShipped').textContent = orders.filter(o => o.status === 'shipped').length;
     document.getElementById('statDelivered').textContent = orders.filter(o => o.status === 'delivered').length;
   }
 
-  // ── Save Tracking Number ──
+  // ── Open Order Modal ──
+  async function openOrderModal(orderId) {
+    currentOrderId = orderId;
+    const { data } = await sb.from('orders').select('*').eq('id', orderId).single();
+    if (!data) return;
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-detail"><span class="modal-label">Customer</span><span class="modal-value">${data.customer_name || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Phone</span><span class="modal-value">${data.phone || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Address</span><span class="modal-value">${data.address || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Pincode</span><span class="modal-value">${data.pincode || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Product</span><span class="modal-value">${data.product_name || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Amount</span><span class="modal-value" style="color:var(--accent2)">₹${data.amount || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Payment</span><span class="modal-value">${data.payment_method || '—'}</span></div>
+      <div class="modal-detail"><span class="modal-label">Date</span><span class="modal-value">${data.created_at ? new Date(data.created_at).toLocaleString('en-IN') : '—'}</span></div>
+    `;
+    document.getElementById('modalConfirmBtn').onclick = () => { updateStatus(orderId, 'confirmed'); closeModal(); };
+    document.getElementById('modalCancelBtn').onclick = () => { updateStatus(orderId, 'cancelled'); closeModal(); };
+    document.getElementById('orderModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('orderModal').classList.remove('open');
+    currentOrderId = null;
+  }
+
+  // ── Update Order Status ──
+  async function updateStatus(orderId, status) {
+    const { error } = await sb.from('orders').update({ status }).eq('id', orderId);
+    if (!error) {
+      const msgs = { confirmed: '✅ Order Confirmed! Now forward to Deodap.', cancelled: '❌ Order Cancelled.', shipped: '🚚 Order marked as Shipped!', delivered: '✅ Order marked as Delivered!' };
+      alert(msgs[status] || 'Status updated!');
+      loadOrders();
+    } else { alert('Error updating status.'); }
+  }
+
+  // ── Save Tracking ──
   async function saveTracking(orderId) {
     const val = document.getElementById('track-' + orderId).value.trim();
+    if (!val) { alert('Please enter AWB tracking number first.'); return; }
     const { error } = await sb.from('orders').update({ tracking_number: val, status: 'shipped' }).eq('id', orderId);
-    if (!error) alert('✅ Tracking saved! Status updated to Shipped.');
-    else alert('Error saving. Check your Supabase permissions.');
+    if (!error) { alert('✅ Tracking saved! Status updated to Shipped.'); loadOrders(); }
+    else { alert('Error saving tracking number.'); }
+  }
+
+  // ── Load Categories into dropdown ──
+  async function loadCategories() {
+    const { data, error } = await sb.from('categories').select('*').order('name');
+    if (error || !data) return;
+    const select = document.getElementById('pCategory');
+    select.innerHTML = '<option value="">Select category...</option>';
+    data.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.slug;
+      opt.textContent = cat.name;
+      select.appendChild(opt);
+    });
+  }
+
+  // ── Add Product ──
+  async function addProduct() {
+    const name = document.getElementById('pName').value.trim();
+    const price = document.getElementById('pPrice').value;
+    const stock = document.getElementById('pStock').value;
+    const category = document.getElementById('pCategory').value.trim();
+    const image = document.getElementById('pImage').value.trim();
+    const deodap = document.getElementById('pDeodap').value.trim();
+    const desc = document.getElementById('pDesc').value.trim();
+
+    if (!name || !price) { alert('Product name and price are required!'); return; }
+
+    const btn = document.getElementById('addProductBtn');
+    btn.disabled = true; btn.textContent = 'Adding...';
+
+    const { error } = await sb.from('products').insert([{
+      name, price: parseFloat(price),
+      stock: stock ? parseInt(stock) : null,
+      category: category || null,
+      image_url: image || null,
+      deodap_url: deodap || null,
+      description: desc || null,
+    }]);
+
+    btn.disabled = false; btn.textContent = '➕ Add Product';
+
+    if (!error) {
+      document.getElementById('productSuccess').style.display = 'block';
+      setTimeout(() => document.getElementById('productSuccess').style.display = 'none', 3000);
+      document.getElementById('pName').value = '';
+      document.getElementById('pPrice').value = '';
+      document.getElementById('pStock').value = '';
+      document.getElementById('pCategory').value = '';
+      document.getElementById('pImage').value = '';
+      document.getElementById('pDeodap').value = '';
+      document.getElementById('pDesc').value = '';
+      loadProducts();
+    } else {
+      alert('Error adding product. Make sure products table exists in Supabase.');
+    }
   }
 
   // ── Load Products ──
   async function loadProducts() {
     const el = document.getElementById('productsTable');
     el.innerHTML = '<div class="loading">Loading...</div>';
-    const { data, error } = await sb.from('products').select('*');
+    const { data, error } = await sb.from('products').select('*').order('created_at', { ascending: false });
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No products found in your Supabase products table.</div></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">No products yet. Add your first product above!</div></div>';
       return;
     }
-    el.innerHTML = `<table><thead><tr><th>Name</th><th>Price</th><th>Stock</th></tr></thead><tbody>
-      ${data.map(p => `<tr><td>${p.name||'—'}</td><td style="color:var(--accent2)">₹${p.price||'—'}</td><td>${p.stock ?? '—'}</td></tr>`).join('')}
-    </tbody></table>`;
+    el.innerHTML = `<div style="overflow-x:auto"><table>
+      <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Category</th><th>Action</th></tr></thead>
+      <tbody>
+        ${data.map(p => `
+          <tr>
+            <td>${p.image_url ? `<img src="${p.image_url}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"/>` : '—'}</td>
+            <td style="font-weight:500">${p.name || '—'}</td>
+            <td style="color:var(--accent2)">₹${p.price || '—'}</td>
+            <td>${p.stock ?? '—'}</td>
+            <td style="color:var(--muted);font-size:12px">${p.category || '—'}</td>
+            <td><button class="btn-delete" onclick="deleteProduct('${p.id}')">🗑️ Delete</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+  }
+
+  // ── Delete Product ──
+  async function deleteProduct(id) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    const { error } = await sb.from('products').delete().eq('id', id);
+    if (!error) { loadProducts(); }
+    else { alert('Error deleting product.'); }
   }
 
   // ── Load Customers ──
   async function loadCustomers() {
     const el = document.getElementById('customersTable');
     el.innerHTML = '<div class="loading">Loading...</div>';
-    const { data, error } = await sb.from('customers').select('*');
+    const { data, error } = await sb.from('orders').select('customer_name, phone, address, created_at').order('created_at', { ascending: false });
     if (error || !data || data.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No customers found in your Supabase customers table.</div></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No customers yet.</div></div>';
       return;
     }
-    el.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead><tbody>
-      ${data.map(c => `<tr><td>${c.name||'—'}</td><td>${c.email||'—'}</td><td>${c.phone||'—'}</td><td style="color:var(--muted);font-size:12px">${c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : '—'}</td></tr>`).join('')}
-    </tbody></table>`;
+    const unique = data.filter((v, i, a) => a.findIndex(t => t.phone === v.phone) === i);
+    el.innerHTML = `<div style="overflow-x:auto"><table>
+      <thead><tr><th>Name</th><th>Phone</th><th>Address</th><th>First Order</th></tr></thead>
+      <tbody>
+        ${unique.map(c => `
+          <tr>
+            <td style="font-weight:500">${c.customer_name || '—'}</td>
+            <td>${c.phone ? `<a class="btn-whatsapp" href="https://wa.me/91${c.phone}" target="_blank">📱 ${c.phone}</a>` : '—'}</td>
+            <td style="font-size:12px;color:var(--muted)">${c.address || '—'}</td>
+            <td style="font-size:12px;color:var(--muted)">${c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : '—'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
   }
 
-  // Enter key to login
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-  });
+  // Enter key login
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  // Close modal on overlay click
+  document.getElementById('orderModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>
 </body>
 </html>
